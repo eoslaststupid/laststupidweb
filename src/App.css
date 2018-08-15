@@ -26,3 +26,38 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+.countDownTimer{
+  font-size: 40px;
+  font-weight:bold;
+}
+.button-right{
+  float:right;
+}
+.rule-ul{
+  text-align: left;
+}
+.rule-ul li{
+  border:0;
+  padding:0.3rem 0;
+}
+.history-ul th{
+  text-align: center;
+  color:white;
+  background: #f9a814;
+  border-bottom: 0;
+}
+.history-ul{
+  border:1px solid #dddddd;
+}
+.footer{
+  text-align: center;
+  background: #dddddd;
+  padding: 2rem 0;
+}
+.click-div{
+  text-align: center;
+  margin: 2rem 0;
+}
+.click-div button{
+  margin:0 2rem;
+}
