@@ -1,8 +1,23 @@
 .per-title{
     text-align: left;
-    font-size: 16px;
+    font-size: 26px;
     border-bottom: 1px solid #e8e7e8;
-    margin:0 0 1rem 0;
+    margin:2rem 0 1rem 0;
     padding: 0 0 0.5rem 0;
     font-weight: bold;
+    color: #49d2cc;
+}
+.panel-primary>.panel-heading,.panel-primary>.panel-body,.panel-primary{
+    background:none;
+    border:none;
+}
+.panel-primary>.panel-heading,.panel-primary>.panel-body{
+    width:97%;
+    height:95%;
+    margin-left:1.5%;
+    margin-top:1.6%;
+    border-radius:5px;
+    box-shadow:rgb(11, 234, 235) 0px 2px 20px 4px inset;
+    color: #f8ff8c;
+    background: rgba(59, 86, 15, 0.5);
 }

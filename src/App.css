@@ -39,15 +39,20 @@
 .rule-ul li{
   border:0;
   padding:0.3rem 0;
+  background:black;
+  color:#c3c3c3;
+  line-height: 1.5;
+  font-size:1.7rem;
 }
 .history-ul th{
   text-align: center;
   color:white;
-  background: #f9a814;
-  border-bottom: 0;
+  background: #417569;
+  border: 1px solid #417569;
 }
+.table>thead>tr>th{border: 1px solid #417569;}
 .history-ul{
-  border:1px solid #dddddd;
+  border:4px solid #417569;
 }
 .footer{
   text-align: center;
@@ -61,3 +66,85 @@
 .click-div button{
   margin:0 2rem;
 }
+.panel-title{font-size:2rem;color: #00ece1;}
+.table>tbody>tr>td{
+  padding:13px 8px;
+  font-size:1.7rem;
+  border-top: 4px solid rgb(65, 117, 105);
+  color:#d2c854;
+}
+.panel-body{
+  font-size: 3rem;
+  font-weight: bold;
+  padding: 3rem 0;
+}
+.countDownTimer{
+  margin: 3rem 0;
+}
+.navbar-default{
+  background-color: transparent;
+  border: 0;
+}
+body{
+  background: #00080b;
+  color: white;
+  background-repeat: no-repeat;
+  background-position-x: center;
+  background-position-y: -134px;
+  background-size:  80%;
+}
+@-webkit-keyframes scaleout {
+  0% { box-shadow: -1px 0px 20px 5px rgb(195, 97, 94); }
+  100% {
+    box-shadow: -1px 0px 12px 8px rgb(195, 159, 77) }
+}
+@keyframes scaleout {
+  0% { box-shadow: -1px 0px 20px 5px rgb(195, 97, 94); }
+  100% {
+    box-shadow: -1px 0px 12px 8px rgb(195, 159, 77) }
+}
+.per-title button{webkit-animation: scaleout 1.3s infinite ease-in-out;
+  animation: scaleout 1.3s linear infinite;
+  animation-direction: alternate;}
+.footer{background: #1f2d33;}
+.countDownTimer{margin:3rem 0;font-size:6rem;
+  border-radius: 10px;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: "Zeyada";
+  transition: text-shadow 0.5s ease 0s;
+  text-align: center;
+  text-shadow: 0 0 10px #FFFFFF, 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, 0 0 40px #008000, 0 0 70px #008000, 0 0 80px #008000, 0 0 100px #008000;
+  color: #598240;
+}
+.panel-heading{
+  color:#11afa7;
+}
+.order-list{
+  border:0;
+}
+#history-records{
+  border:0;
+}
+.footer{
+  padding: 50px 0;
+}
+.prev,.next{
+  padding:14px;
+  border-radius: 50%;
+  background: #417569;
+  color:white;
+  font-weight:bold;
+  border:0;
+  box-shadow: 0 0px 20px 5px rgb(107, 179, 89);
+}
+.li-a a:hover{
+  color:#337ab7 !important;
+}
+.navbar-brand{
+  height: 100px;
+}
+.navbar-right a{
+  font-size:17px;
+}
+.navbar-collapse{padding-top: 2rem;}
