@@ -70,7 +70,7 @@
 .table>tbody>tr>td{
   padding:13px 8px;
   font-size:1.7rem;
-  border-top: 4px solid rgb(65, 117, 105);
+  border-bottom: 4px solid rgb(65, 117, 105);
   color:#d2c854;
 }
 .panel-body{
@@ -147,3 +147,9 @@ body{
   font-size:17px;
 }
 .navbar-collapse{padding-top: 2rem;}
+.table{margin-bottom: 0}
+.table-responsive{
+  text-shadow: 0 0 10px #09a74f, 0 0 15px #030803, 0 0 30px #1d0606, 0 0 40px #9fff9f, 0 0 70px #0f500f, 0 0 80px #008000, 0 0 100px #008000;
+  box-shadow: inset rgb(11, 234, 235) 0px 0px 20px 1px;
+  border-radius: 9px;
+}
