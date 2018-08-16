@@ -120,7 +120,7 @@ body{
   color:#11afa7;
 }
 .order-list{
-  border:0;
+  border:0 !important;
 }
 #history-records{
   border:0;
