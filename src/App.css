@@ -61,7 +61,7 @@
 }
 .click-div{
   text-align: center;
-  margin: 2rem 0;
+  margin: 4rem 0 7rem 0;
 }
 .click-div button{
   margin:0 2rem;
@@ -71,7 +71,7 @@
   padding:13px 8px;
   font-size:1.7rem;
   border-bottom: 4px solid rgb(65, 117, 105);
-  color:#d2c854;
+  color:#c5c5c5;
 }
 .panel-body{
   font-size: 3rem;
@@ -104,8 +104,10 @@ body{
     box-shadow: -1px 0px 12px 8px rgb(195, 159, 77) }
 }
 .per-title button{webkit-animation: scaleout 1.3s infinite ease-in-out;
-  animation: scaleout 1.3s linear infinite;
-  animation-direction: alternate;}
+  /*animation: scaleout 1.3s linear infinite;
+  animation-direction: alternate;*/
+  height:3.5rem;
+}
 .footer{background: #1f2d33;}
 .countDownTimer{margin:3rem 0;font-size:6rem;
   border-radius: 10px;
@@ -124,6 +126,7 @@ body{
 }
 #history-records{
   border:0;
+  margin-top: 5rem;
 }
 .footer{
   padding: 50px 0;
@@ -135,7 +138,7 @@ body{
   color:white;
   font-weight:bold;
   border:0;
-  box-shadow: 0 0px 20px 5px rgb(107, 179, 89);
+  box-shadow: 0 0px 7px 3px rgb(107, 179, 89);
 }
 .li-a a:hover{
   color:#337ab7 !important;
@@ -149,7 +152,23 @@ body{
 .navbar-collapse{padding-top: 2rem;}
 .table{margin-bottom: 0}
 .table-responsive{
-  text-shadow: 0 0 10px #09a74f, 0 0 15px #030803, 0 0 30px #1d0606, 0 0 40px #9fff9f, 0 0 70px #0f500f, 0 0 80px #008000, 0 0 100px #008000;
   box-shadow: inset rgb(11, 234, 235) 0px 0px 20px 1px;
   border-radius: 9px;
 }
+.table-responsive th{    text-shadow: none;}
+#game-rule{
+  margin-top: 7rem;
+}
+.col-xs-12,.col-xs-8,.col-xs-4{padding:0;}
+.input-group-addon{text-shadow: none}
+input[name="betprice"]{
+  height:3.5rem;
+  border-radius: 0;
+  color: white;
+  font-size: 1.7rem;
+  border-color: #d9534f;
+  background: rgba(20, 190, 183, 0.3);
+}
+.inputGroup{animation: scaleout 1.3s linear infinite;
+  animation-direction: alternate;}
+.inputGroup button{border-radius: 0}

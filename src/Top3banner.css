@@ -1,7 +1,7 @@
 .per-title{
     text-align: left;
     font-size: 26px;
-    border-bottom: 1px solid #e8e7e8;
+    border-bottom: 1px solid #49d2cc;
     margin:2rem 0 1rem 0;
     padding: 0 0 0.5rem 0;
     font-weight: bold;
@@ -19,6 +19,6 @@
     margin-top:1.6%;
     border-radius:5px;
     box-shadow:rgb(11, 234, 235) 0px 2px 20px 4px inset;
-    color: #f8ff8c;
+    color: #52ff4f;
     background: rgba(59, 86, 15, 0.5);
 }
