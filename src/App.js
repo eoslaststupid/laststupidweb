@@ -3,51 +3,220 @@ import logo from './logo.svg';
 import './App.css';
 import Header from './Header'
 import Top3banner from './Top3banner'
+import Countdown from './Countdown'
 import { Grid,Row,Col,Panel,Button,Table,FormGroup,InputGroup,FormControl } from 'react-bootstrap';
-
+import Eos from 'eosjs'
 
 class App extends Component {
   constructor(props) {
     super(props)
+
     this.state = {
-      betRecord: [
+      betRecord: [],
+
+      history:[
         {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
+          account: "hahaha",
+          profit: "345.1111 EOS",
+          putin: "2222.3333 EOS"
         },
         {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
+          account: "hahaha",
+          profit: "345.1111 EOS",
+          putin: "2222.3333 EOS"
         },
         {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
+          account: "hahaha",
+          profit: "345.1111 EOS",
+          putin: "2222.3333 EOS"
         },
         {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
+          account: "hahaha",
+          profit: "345.1111 EOS",
+          putin: "2222.3333 EOS"
         },
         {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
-        },
-        {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
-        },
-        {
-          account: "fdklskkejsjh",
-          amount: "32135.2211",
-          bettime: "2017-09-22 12:21:45",
+          account: "hahaha",
+          profit: "345.1111 EOS",
+          putin: "2222.3333 EOS"
         },
       ],
+
+      betprice : 0,
+      currentStupidOrder: 0,
     }
+
+    this.selfAccount = 'eosiostupid2'
+    this.scatter = undefined
+    this.eos     = undefined
+    this.Eos     = undefined
+    this.network = {
+      protocol:'https',
+        blockchain:'eos',
+        host:'api-kylin.eosasia.one',
+        port:443,
+        chainId:'5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191',
+        verbose:true
+    }
+  }
+
+  loginScatter = async () => {
+    this.scatter.getIdentity({ accounts:[this.state.network] }).then(async identity=>
+    {
+      let account = identity.accounts.find(acc => acc.blockchain === 'eos')
+      console.log(account)
+         },err=>{
+      console.log(err)
+    })
+  }
+
+  stupidIndexSplit = originIndex => ({
+    stupidOrder: originIndex & 0xff,//排序
+    stupidIndexOrder: originIndex >> 8,//轮次
+   // console.log('originIndex:',originIndex,'')
+  })
+
+  getCurrentRecords = () =>{ //获取当前轮次所有参与记录
+    this.eos.getTableRows(true, this.selfAccount, this.selfAccount, 'claims', 'stupidIndex', 0, -1, 99999).then(obj => {
+
+        const currentStupidOrder = Math.max(
+          ...obj.rows.map(
+            claim => this.stupidIndexSplit(claim.stupidIndex).stupidIndexOrder,
+          ),
+        )
+
+        const stupids = obj.rows
+          .filter(
+            claim =>
+              this.stupidIndexSplit(claim.stupidIndex).stupidIndexOrder ===
+              currentStupidOrder,
+          )
+          .map(claim => ({
+            account: claim.name,
+            amount: claim.price,
+            bettime: this.formatDate(claim.claimTime),
+            stupidOrder: this.stupidIndexSplit(claim.stupidIndex).stupidOrder,
+
+          }))
+          .sort((king1, king2) => king2.stupidOrder - king1.stupidOrder)
+
+        this.setState({betRecord: stupids, currentStupidOrder})
+
+
+        // console.log('max:', currentStupidOrder)
+        //  console.log(...obj.rows)
+
+
+        // console.log(obj)
+        //
+        // let newestRecords = []
+        // const len = obj.rows.length
+        //
+        // for(let i in obj.rows){
+        //
+        //   if(obj.rows[len - i - 1].price == '1.0000 EOS'){//判断是哪个轮次
+        //     let tem = {account: obj.rows[len - i - 1].name, amount: obj.rows[len - i - 1].price, bettime: this.formatDate(obj.rows[len - i - 1].claimTime)}
+        //     newestRecords.push(tem)
+        //     break
+        //   }
+        //
+        //   //console.log(row.name, '--',row.price, '----', '----',row.claimTime, this.formatDate(row.claimTime))
+        // }
+        // this.setState({betRecord: newestRecords})
+        // console.log('betRecord:', this.state.betRecord)
+
+      },err=>
+        console.log('err:',err)
+    )
+  }
+
+
+  getHistoryStupids = () =>{
+
+  }
+
+  formatDate(time){ //格式化时间
+
+    const date = new Date(1000 * time);//需要13位
+
+    const year = date.getFullYear(),
+          month = date.getMonth() + 1,//月份是从0开始的
+          day = date.getDate(),
+          hour = date.getHours(),
+          min = date.getMinutes(),
+          sec = date.getSeconds();
+    const newTime = year + '-' +
+                    month + '-' +
+                    day + ' ' +
+                    hour + ':' +
+                    min + ':' +
+                    sec;
+    return newTime;
+  }
+
+  componentWillMount() {
+    // TODO: fetch data from here
+
+    document.addEventListener('scatterLoaded',async scatterExtension => {
+      this.scatter = window.scatter;
+      this.eos = this.scatter.eos( this.network, Eos, {}, this.network.protocol);
+      console.log('this.eos~~~', this.eos)
+      this.eos.getAbi('eosiostupid2').then(v=>
+        console.log(v),err=>
+        console.log('err:',err)
+      )
+
+      this.getCurrentRecords()
+
+      setInterval(this.getCurrentRecords, 6000)
+
+      const myContract =  this.eos.contract(this.selfAccount);
+
+      myContract.then(obj => {
+
+      },err => {
+
+      })
+
+
+      this.loginScatter().then(
+        (val)=>{
+          console.log('val===>',val)
+
+        },err=>{
+          console.log('err===>',err)
+
+      })
+
+
+
+    })
+
+  }
+
+  componentDidMount(){
+
+  }
+
+  // shouldComponentUpdate(newProps,newState){
+  //  // console.log('newState:', newState)
+  //  // console.log('newProps:', newProps)
+  //
+  // }
+
+  jiepan = ()=>{
+    alert(document.getElementById('betValue').value);
+    //todo: 发送数据
+
+  }
+
+  formatInput = (e) => {
+    e.target.value = e.target.value.replace(/[^\d.]/g,"");
+    e.target.value = e.target.value.replace(/^\./g,"");
+    e.target.value = e.target.value.replace(/\.{2,}/g,".");
+    e.target.value = e.target.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+    e.target.value = e.target.value.replace(/^(\-)*(\d+)\.(\d\d\d\d).*$/,'$1$2.$3');
+    //todo: 判断值是否是1.1倍到3倍
   }
 
   renderBetRecords() {
@@ -70,6 +239,22 @@ class App extends Component {
     )
   }
 
+  renderHistory(){
+    return (
+      this.state.history.map((item,index)=>{
+        return (
+          <tr key={index} >
+            <td>#{index + 1}</td>
+            <td>{item.account}</td>
+            <td>{item.putin}</td>
+            <td>{item.profit}</td>
+          </tr>
+        )
+      })
+
+    )
+  }
+
   render() {
     return (
       <div className="App">
@@ -78,9 +263,7 @@ class App extends Component {
 
         <Top3banner />
 
-        <p className="countDownTimer">
-          09 : 45 : 32
-        </p>
+        <Countdown seconds="10" />
 
         <Grid>
           <Row  className="per-title order-list">
@@ -96,9 +279,9 @@ class App extends Component {
 
                 <FormGroup>
                   <InputGroup className="inputGroup">
-                    <FormControl type="text" name="betprice" placeholder="最低接盘价 34526.5346 EOS"/>
+                    <FormControl type="text" name="betprice" id="betValue" onKeyUp= {this.formatInput} placeholder="最低接盘价 34526.5346 EOS"/>
                     <InputGroup.Button>
-                      <Button bsStyle="danger" >我来接盘</Button>
+                      <Button bsStyle="danger" onClick = {this.jiepan} >我来接盘</Button>
                     </InputGroup.Button>
                   </InputGroup>
                 </FormGroup>
@@ -135,41 +318,8 @@ class App extends Component {
               </thead>
 
               <tbody>
-                <tr>
-                  <td>#1</td>
-                  <td>abcdefghijkl</td>
-                  <td>2356.2235 EOS</td>
-                  <td>122.3333 EOS</td>
-                </tr>
 
-                <tr>
-                  <td>#2</td>
-                  <td>abcdefghijkl</td>
-                  <td>2356.2235 EOS</td>
-                  <td>122.3333 EOS</td>
-                </tr>
-
-                <tr>
-                  <td>#3</td>
-                  <td>abcdefghijkl</td>
-                  <td>2356.2235 EOS</td>
-                  <td>122.3333 EOS</td>
-                </tr>
-
-                <tr>
-                  <td>#4</td>
-                  <td>abcdefghijkl</td>
-                  <td>2356.2235 EOS</td>
-                  <td>122.3333 EOS</td>
-                </tr>
-
-                <tr>
-                  <td>#5</td>
-                  <td>abcdefghijkl</td>
-                  <td>2356.2235 EOS</td>
-                  <td>122.3333 EOS</td>
-                </tr>
-
+                {this.renderHistory()}
               </tbody>
             </Table>
             <div className="click-div">
