@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Header from './Header'
 import Top3banner from './Top3banner'
@@ -27,7 +26,7 @@ class App extends Component {
 
     this.perPage = 1 //history每页显示条数
     this.currentPage = 1 //当前页
-    this.selfAccount = 'eosiostupid2'
+    this.selfAccount = 'eosiostupid4'
     this.scatter = undefined
     this.eos     = undefined
     this.Eos     = undefined
