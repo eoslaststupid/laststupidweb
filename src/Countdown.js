@@ -1,7 +1,7 @@
 import React from 'react';
 import './Countdown.css';
 
-export default class Countdown extends React.PureComponent{
+export default class Countdown extends React.Component{
 
   constructor(props) {
     super(props)
@@ -17,14 +17,35 @@ export default class Countdown extends React.PureComponent{
     this.timer = undefined
   }
 
+  shouldComponentUpdate(nextProps,nextState) {
+    if (this.state.remaining === nextState.remaining) {
+      return false
+    }
+    return true
+  }
+
   componentWillReceiveProps(newProps) {
     let {seconds} = newProps;
     this.setState({remaining: seconds})
+    this.setTimer()
   }
 
   componentDidMount() {
     let {seconds} = this.props;
     this.setState({remaining: seconds})
+    this.setTimer()
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  setTimer() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
     this.timer = setInterval(() => {
       let {remaining} = this.state;
       if(remaining >= 0) {
@@ -41,12 +62,6 @@ export default class Countdown extends React.PureComponent{
         clearInterval(this.timer);
       }
     }, 1000)
-  }
-
-  componentWillUnmount() {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
   }
 
   // updateTime(){

@@ -90,7 +90,7 @@ body{
   color: white;
   background-repeat: no-repeat;
   background-position-x: center;
-  background-position-y: -134px;
+  background-position-y: -10rem;
   background-size:  80%;
 }
 @-webkit-keyframes scaleout {

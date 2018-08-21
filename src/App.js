@@ -13,39 +13,20 @@ class App extends Component {
 
     this.state = {
       betRecord: [],
-
-      history:[
-        {
-          account: "hahaha",
-          profit: "345.1111 EOS",
-          putin: "2222.3333 EOS"
-        },
-        {
-          account: "hahaha",
-          profit: "345.1111 EOS",
-          putin: "2222.3333 EOS"
-        },
-        {
-          account: "hahaha",
-          profit: "345.1111 EOS",
-          putin: "2222.3333 EOS"
-        },
-        {
-          account: "hahaha",
-          profit: "345.1111 EOS",
-          putin: "2222.3333 EOS"
-        },
-        {
-          account: "hahaha",
-          profit: "345.1111 EOS",
-          putin: "2222.3333 EOS"
-        },
-      ],
-
+      history:[],
+      whichPartShow: [],
       betprice : 0,
       currentStupidOrder: 0,
+      currentStupid: 'loading...',
+      minimumBet: 0,
+      remaningTime : 0,
+      capitalPool: '0 EOS',
+      prevDisabled: true,
+      nextDisabled: true,
     }
 
+    this.perPage = 1 //history每页显示条数
+    this.currentPage = 1 //当前页
     this.selfAccount = 'eosiostupid2'
     this.scatter = undefined
     this.eos     = undefined
@@ -60,21 +41,30 @@ class App extends Component {
     }
   }
 
-  loginScatter = async () => {
-    this.scatter.getIdentity({ accounts:[this.state.network] }).then(async identity=>
-    {
-      let account = identity.accounts.find(acc => acc.blockchain === 'eos')
-      console.log(account)
-         },err=>{
-      console.log(err)
-    })
-  }
+
 
   stupidIndexSplit = originIndex => ({
     stupidOrder: originIndex & 0xff,//排序
     stupidIndexOrder: originIndex >> 8,//轮次
    // console.log('originIndex:',originIndex,'')
   })
+
+  getHistoryStupids = () =>{
+    this.eos.getTableRows(true, this.selfAccount, this.selfAccount, 'stupids', 'id', 0, -1, 99999).then(obj => {
+      const history = obj.rows
+        .map(item => ({
+          account: item.name,
+          profit: 0,
+          putin: 123,
+          id: item.id + 1,
+        }))
+        .sort((history1, history2) => history2.id - history1.id)
+      if(this.state.history.toString() != history.toString()){
+        this.setState({history})
+        this.whichPartShow()
+      }
+    })
+  }
 
   getCurrentRecords = () =>{ //获取当前轮次所有参与记录
     this.eos.getTableRows(true, this.selfAccount, this.selfAccount, 'claims', 'stupidIndex', 0, -1, 99999).then(obj => {
@@ -98,9 +88,20 @@ class App extends Component {
             stupidOrder: this.stupidIndexSplit(claim.stupidIndex).stupidOrder,
 
           }))
-          .sort((king1, king2) => king2.stupidOrder - king1.stupidOrder)
+          .sort((stupid1, stupid2) => stupid2.stupidOrder - stupid1.stupidOrder)
 
-        this.setState({betRecord: stupids, currentStupidOrder})
+
+        let minimumBet =  stupids[0].amount.replace(/ EOS/,'') * 10000 * 1.1 / 10000
+        let rt = 24 * 60 * 60 - Math.round((Date.parse(new Date()) - Date.parse(new Date(stupids[0].bettime))) / 1000)
+        let remaningTime = rt > 0 ? rt : 0
+
+        // console.log(stupids[0].amount.replace(/ EOS/,''))
+        // console.log(minimumBet,'---',remaningTime)
+
+        if (stupids.toString() != this.state.betRecord.toString()) {
+          this.setState({betRecord: stupids, currentStupidOrder, currentStupid: stupids[0].account, minimumBet, remaningTime})
+        }
+
 
 
         // console.log('max:', currentStupidOrder)
@@ -131,9 +132,15 @@ class App extends Component {
   }
 
 
-  getHistoryStupids = () =>{
-
+  getCapitalPool = async () => {
+    const eosaccount = await this.eos.getAccount(this.selfAccount)
+    const balance	=	eosaccount.core_liquid_balance ? eosaccount.core_liquid_balance : '0 EOS'
+    // console.log('eosaccount:', eosaccount)
+    this.setState({capitalPool: balance})
+    // console.log('capitalPool:', this.state.capitalPool)
   }
+
+
 
   formatDate(time){ //格式化时间
 
@@ -160,15 +167,17 @@ class App extends Component {
     document.addEventListener('scatterLoaded',async scatterExtension => {
       this.scatter = window.scatter;
       this.eos = this.scatter.eos( this.network, Eos, {}, this.network.protocol);
-      console.log('this.eos~~~', this.eos)
-      this.eos.getAbi('eosiostupid2').then(v=>
-        console.log(v),err=>
-        console.log('err:',err)
-      )
+
 
       this.getCurrentRecords()
+      this.getCapitalPool()
+      this.getHistoryStupids()
 
-      setInterval(this.getCurrentRecords, 6000)
+      setInterval(()=>{
+        this.getCapitalPool()
+        this.getCurrentRecords()
+        this.getHistoryStupids()
+      }, 60000)
 
       const myContract =  this.eos.contract(this.selfAccount);
 
@@ -179,14 +188,7 @@ class App extends Component {
       })
 
 
-      this.loginScatter().then(
-        (val)=>{
-          console.log('val===>',val)
 
-        },err=>{
-          console.log('err===>',err)
-
-      })
 
 
 
@@ -198,16 +200,93 @@ class App extends Component {
 
   }
 
-  // shouldComponentUpdate(newProps,newState){
-  //  // console.log('newState:', newState)
-  //  // console.log('newProps:', newProps)
-  //
+  async loginScatter(){
+
+    this.scatter.authenticate().then(async sig =>{
+
+      this.scatter.forgetIdentity();
+      this.loginScatter() //每一次支付时，都让用户选择账号
+
+    },err=>{
+
+    })
+
+    this.scatter.getIdentity({ accounts:[this.network] }).then(identity=>
+    {
+      let account = identity.accounts.find(acc => acc.blockchain === 'eos')
+      console.log('account', account)
+      return account
+    },err=>{
+      alert('接盘失败')
+    })
+
+  }
+
+  // loginScatter = async () => {
+  //   this.scatter.getIdentity({ accounts:[this.state.network] }).then(async identity=>
+  //   {
+  //     let account = identity.accounts.find(acc => acc.blockchain === 'eos')
+  //     console.log(account)
+  //   },err=>{
+  //     console.log(err)
+  //   })
   // }
 
   jiepan = ()=>{
-    alert(document.getElementById('betValue').value);
+
+    const baseBet = this.state.minimumBet * 10000 / 1.1
+    if(this.state.betprice * 10000 < baseBet * 1.1 || this.state.betprice * 10000 > baseBet * 3) {
+      alert('本轮接盘价需在 '+ baseBet * 1.1 / 10000 + ' 至 ' + baseBet * 3 / 10000 + ' EOS之间')
+      return false
+    }
+
     //todo: 发送数据
 
+    this.loginScatter().then(
+      (val)=>{
+        console.log('val===>',val)
+
+      },err=>{
+        console.log('err===>',err)
+
+      })
+
+  }
+
+  clickPrev = () => {
+
+    if(this.currentPage > 1){
+      this.currentPage --
+      this.whichPartShow()
+    }
+
+  }
+
+  clickNext = () => {
+
+    this.currentPage ++
+    this.whichPartShow()
+
+  }
+
+  whichPartShow(){
+    let tem = this.state.history
+    let begin = this.perPage * (this.currentPage - 1)
+    let end = this.perPage * (this.currentPage - 1) + this.perPage
+
+    this.setState({whichPartShow: tem.slice(begin, end)})
+
+    if(this.currentPage == 1){
+      this.setState({prevDisabled: true})
+    }else{
+      this.setState({prevDisabled: false})
+    }
+
+    if(this.state.history.length > end){
+      this.setState({nextDisabled: false})
+    }else{
+      this.setState({nextDisabled: true})
+    }
   }
 
   formatInput = (e) => {
@@ -217,6 +296,10 @@ class App extends Component {
     e.target.value = e.target.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
     e.target.value = e.target.value.replace(/^(\-)*(\d+)\.(\d\d\d\d).*$/,'$1$2.$3');
     //todo: 判断值是否是1.1倍到3倍
+    const baseBet = this.state.minimumBet * 10000 / 1.1
+    this.setState({betprice: e.target.value})
+
+
   }
 
   renderBetRecords() {
@@ -228,7 +311,7 @@ class App extends Component {
             return (
               <tr key={index}>
                 <td>{rcd.account}</td>
-                <td>{rcd.amount} EOS</td>
+                <td>{rcd.amount}</td>
                 <td>{rcd.bettime}</td>
               </tr>
             )
@@ -241,10 +324,10 @@ class App extends Component {
 
   renderHistory(){
     return (
-      this.state.history.map((item,index)=>{
+      this.state.whichPartShow.map((item,index)=>{
         return (
           <tr key={index} >
-            <td>#{index + 1}</td>
+            <td>#{item.id}</td>
             <td>{item.account}</td>
             <td>{item.putin}</td>
             <td>{item.profit}</td>
@@ -261,9 +344,9 @@ class App extends Component {
 
         <Header/>
 
-        <Top3banner />
+        <Top3banner  currentStupid = {this.state.currentStupid} currentStupidOrder = {this.state.currentStupidOrder}  minimumBet = {this.state.minimumBet}  capitalPool = {this.state.capitalPool} />
 
-        <Countdown seconds="10" />
+        <Countdown seconds={this.state.remaningTime} />
 
         <Grid>
           <Row  className="per-title order-list">
@@ -279,7 +362,7 @@ class App extends Component {
 
                 <FormGroup>
                   <InputGroup className="inputGroup">
-                    <FormControl type="text" name="betprice" id="betValue" onKeyUp= {this.formatInput} placeholder="最低接盘价 34526.5346 EOS"/>
+                    <FormControl type="text" name="betprice" id="betValue" onKeyUp= {this.formatInput} placeholder={'最低接盘价 ' + this.state.minimumBet + ' EOS'}/>
                     <InputGroup.Button>
                       <Button bsStyle="danger" onClick = {this.jiepan} >我来接盘</Button>
                     </InputGroup.Button>
@@ -323,11 +406,11 @@ class App extends Component {
               </tbody>
             </Table>
             <div className="click-div">
-              <Button className="prev">
+              <Button className="prev" disabled = {this.state.prevDisabled} onClick = {this.clickPrev}>
                 &lt;&lt;
               </Button>
 
-              <Button className="next">
+              <Button className="next" disabled = {this.state.nextDisabled} onClick = {this.clickNext}>
                 >>
               </Button>
             </div>
