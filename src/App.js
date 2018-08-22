@@ -18,13 +18,14 @@ class App extends Component {
       currentStupidOrder: 0,
       currentStupid: 'loading...',
       minimumBet: 0,
+      maxBet: 0,
       remaningTime : 0,
       capitalPool: '0 EOS',
       prevDisabled: true,
       nextDisabled: true,
     }
 
-    this.perPage = 1 //history每页显示条数
+    this.perPage = 10 //history每页显示条数
     this.currentPage = 1 //当前页
     this.selfAccount = 'eosiostupid4'
     this.scatter = undefined
@@ -53,8 +54,8 @@ class App extends Component {
       const history = obj.rows
         .map(item => ({
           account: item.name,
-          profit: 0,
-          putin: 123,
+          profit: item.bonus,
+          putin: item.claim,
           id: item.id + 1,
         }))
         .sort((history1, history2) => history2.id - history1.id)
@@ -90,40 +91,18 @@ class App extends Component {
           .sort((stupid1, stupid2) => stupid2.stupidOrder - stupid1.stupidOrder)
 
 
-        let minimumBet =  stupids[0].amount.replace(/ EOS/,'') * 10000 * 1.1 / 10000
-        let rt = 24 * 60 * 60 - Math.round((Date.parse(new Date()) - Date.parse(new Date(stupids[0].bettime))) / 1000)
+        let minimumBet =  Math.ceil(stupids[0].amount.replace(/ EOS/,'') * 1.1 * 10000) / 10000
+        let maxBet = Math.floor(stupids[0].amount.replace(/ EOS/,'') * 3 * 10000) / 10000
+
+        let rt = 12 * 60 * 60 - Math.round((Date.parse(new Date()) - Date.parse(new Date(stupids[0].bettime))) / 1000)
         let remaningTime = rt > 0 ? rt : 0
 
         // console.log(stupids[0].amount.replace(/ EOS/,''))
         // console.log(minimumBet,'---',remaningTime)
 
         if (stupids.toString() != this.state.betRecord.toString()) {
-          this.setState({betRecord: stupids, currentStupidOrder, currentStupid: stupids[0].account, minimumBet, remaningTime})
+          this.setState({betRecord: stupids, currentStupidOrder, currentStupid: stupids[0].account, minimumBet, maxBet, remaningTime})
         }
-
-
-
-        // console.log('max:', currentStupidOrder)
-        //  console.log(...obj.rows)
-
-
-        // console.log(obj)
-        //
-        // let newestRecords = []
-        // const len = obj.rows.length
-        //
-        // for(let i in obj.rows){
-        //
-        //   if(obj.rows[len - i - 1].price == '1.0000 EOS'){//判断是哪个轮次
-        //     let tem = {account: obj.rows[len - i - 1].name, amount: obj.rows[len - i - 1].price, bettime: this.formatDate(obj.rows[len - i - 1].claimTime)}
-        //     newestRecords.push(tem)
-        //     break
-        //   }
-        //
-        //   //console.log(row.name, '--',row.price, '----', '----',row.claimTime, this.formatDate(row.claimTime))
-        // }
-        // this.setState({betRecord: newestRecords})
-        // console.log('betRecord:', this.state.betRecord)
 
       },err=>
         console.log('err:',err)
@@ -199,21 +178,69 @@ class App extends Component {
 
   }
 
-  async loginScatter(){
+  async scatterPost(){
 
     this.scatter.authenticate().then(async sig =>{
 
-      this.scatter.forgetIdentity();
-      this.loginScatter() //每一次支付时，都让用户选择账号
-
+      await this.scatter.forgetIdentity();
+      this.scatterPost() //每一次支付时，都让用户选择账号
+      return false;
     },err=>{
-
+      throw err
     })
 
     this.scatter.getIdentity({ accounts:[this.network] }).then(identity=>
     {
       let account = identity.accounts.find(acc => acc.blockchain === 'eos')
       console.log('account', account)
+      const eosioContract =  this.eos.contract('eosio.token')
+      eosioContract.then(contract => {
+          const options = {
+            authorization: `${account.name}@${account.authority}`,
+            broadcast: true,
+            sign: true
+          };
+          contract
+            .transfer(
+              account.name,
+              this.selfAccount,
+              parseFloat(this.state.betprice).toFixed(4) + ' EOS',
+              '',
+              options
+            )
+            .then(resl => {
+                this.getCurrentRecords()
+                this.getCapitalPool()
+                this.getHistoryStupids()
+                console.log('resl:', resl)
+                alert('不知当不当恭喜，接盘成功！')
+              },error => {
+                this.scatter.forgetIdentity().then(() => {})
+                let errorMessage = ``
+                if (typeof error === `object`) errorMessage = error.message
+                else {
+                  const innerError = JSON.parse(error).error
+                  errorMessage =
+                    innerError.details.length > 0
+                      ? innerError.details
+                        .map(({ message }) => message)
+                        .join(`;`)
+                        .replace(`condition: assertion failed: `, ``)
+                      : innerError.what
+                }
+                if (errorMessage.trim() === `unknown key:`) errorMessage = `No such account`
+                alert('接盘失败！')
+                throw errorMessage
+
+            })
+        },err =>
+          console.log(err)
+      )
+      .catch(err =>
+        this.scatter.forgetIdentity().then(() => {
+        throw err
+      }),
+      )
       return account
     },err=>{
       alert('接盘失败')
@@ -221,34 +248,15 @@ class App extends Component {
 
   }
 
-  // loginScatter = async () => {
-  //   this.scatter.getIdentity({ accounts:[this.state.network] }).then(async identity=>
-  //   {
-  //     let account = identity.accounts.find(acc => acc.blockchain === 'eos')
-  //     console.log(account)
-  //   },err=>{
-  //     console.log(err)
-  //   })
-  // }
 
   jiepan = ()=>{
 
-    const baseBet = this.state.minimumBet * 10000 / 1.1
-    if(this.state.betprice * 10000 < baseBet * 1.1 || this.state.betprice * 10000 > baseBet * 3) {
-      alert('本轮接盘价需在 '+ baseBet * 1.1 / 10000 + ' 至 ' + baseBet * 3 / 10000 + ' EOS之间')
+    if(this.state.betprice < this.state.minimumBet || this.state.betprice > this.state.maxBet) {
+      alert('本轮接盘价需在 '+ this.state.minimumBet + ' 至 ' + this.state.maxBet + ' EOS之间')
       return false
     }
 
-    //todo: 发送数据
-
-    this.loginScatter().then(
-      (val)=>{
-        console.log('val===>',val)
-
-      },err=>{
-        console.log('err===>',err)
-
-      })
+    this.scatterPost()
 
   }
 
