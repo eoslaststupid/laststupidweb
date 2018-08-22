@@ -31,13 +31,14 @@ class App extends Component {
     this.scatter = undefined
     this.eos     = undefined
     this.Eos     = undefined
+    this.originEos = undefined //eosjs原生
     this.network = {
       protocol:'https',
-        blockchain:'eos',
-        host:'api-kylin.eosasia.one',
-        port:443,
-        chainId:'5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191',
-        verbose:true
+      blockchain:'eos',
+      host:'api-kylin.eosasia.one',
+      port:443,
+      chainId:'5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191',
+      verbose:true
     }
   }
 
@@ -50,7 +51,7 @@ class App extends Component {
   })
 
   getHistoryStupids = () =>{
-    this.eos.getTableRows(true, this.selfAccount, this.selfAccount, 'stupids', 'id', 0, -1, 99999).then(obj => {
+    this.originEos.getTableRows(true, this.selfAccount, this.selfAccount, 'stupids', 'id', 0, -1, 99999).then(obj => {
       const history = obj.rows
         .map(item => ({
           account: item.name,
@@ -67,7 +68,7 @@ class App extends Component {
   }
 
   getCurrentRecords = () =>{ //获取当前轮次所有参与记录
-    this.eos.getTableRows(true, this.selfAccount, this.selfAccount, 'claims', 'stupidIndex', 0, -1, 99999).then(obj => {
+    this.originEos.getTableRows(true, this.selfAccount, this.selfAccount, 'claims', 'stupidIndex', 0, -1, 99999).then(obj => {
 
         const currentStupidOrder = Math.max(
           ...obj.rows.map(
@@ -111,7 +112,7 @@ class App extends Component {
 
 
   getCapitalPool = async () => {
-    const eosaccount = await this.eos.getAccount(this.selfAccount)
+    const eosaccount = await this.originEos.getAccount(this.selfAccount)
     const balance	=	eosaccount.core_liquid_balance ? eosaccount.core_liquid_balance : '0 EOS'
     // console.log('eosaccount:', eosaccount)
     this.setState({capitalPool: balance})
@@ -140,22 +141,27 @@ class App extends Component {
   }
 
   componentWillMount() {
-    // TODO: fetch data from here
+
+    const httpEndpoint =   this.network.protocol + '://' +this.network.host
+    const chainId = this.network.chainId
+    this.originEos = Eos({httpEndpoint, chainId})
+
+    this.getCurrentRecords()
+    this.getCapitalPool()
+    this.getHistoryStupids()
+
+    setInterval(()=>{
+      this.getCapitalPool()
+      this.getCurrentRecords()
+      this.getHistoryStupids()
+    }, 60000)
+
 
     document.addEventListener('scatterLoaded',async scatterExtension => {
       this.scatter = window.scatter;
       this.eos = this.scatter.eos( this.network, Eos, {}, this.network.protocol);
 
 
-      this.getCurrentRecords()
-      this.getCapitalPool()
-      this.getHistoryStupids()
-
-      setInterval(()=>{
-        this.getCapitalPool()
-        this.getCurrentRecords()
-        this.getHistoryStupids()
-      }, 60000)
 
       const myContract =  this.eos.contract(this.selfAccount);
 
