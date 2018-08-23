@@ -3,9 +3,7 @@ import { Grid,Row,Col,Panel } from 'react-bootstrap';
 import './Top3banner.css';
 
 export default class Top3banner extends React.PureComponent{
-  constructor (props){
-    super(props)
-  }
+
 
   render(){
     return (
@@ -19,7 +17,7 @@ export default class Top3banner extends React.PureComponent{
           <Col xs={12} md={4}>
             <Panel bsStyle="primary">
               <Panel.Heading>
-                <Panel.Title componentClass="h3">当前Stupid</Panel.Title>
+                <Panel.Title componentClass="h3">{this.props.intl.get('CURRENT_STUPID')}</Panel.Title>
               </Panel.Heading>
               <Panel.Body>{this.props.currentStupid}</Panel.Body>
             </Panel>
@@ -27,7 +25,7 @@ export default class Top3banner extends React.PureComponent{
           <Col xs={12} md={4}>
             <Panel bsStyle="primary">
               <Panel.Heading>
-                <Panel.Title componentClass="h3">接盘最低价</Panel.Title>
+                <Panel.Title componentClass="h3">{this.props.intl.get('OFFER_MINIMAL')}</Panel.Title>
               </Panel.Heading>
               <Panel.Body>{this.props.minimumBet} EOS</Panel.Body>
             </Panel>
@@ -35,7 +33,7 @@ export default class Top3banner extends React.PureComponent{
           <Col xs={12} md={4}>
             <Panel bsStyle="primary">
               <Panel.Heading>
-                <Panel.Title componentClass="h3">奖金池</Panel.Title>
+                <Panel.Title componentClass="h3">{this.props.intl.get('BONUS_POOL')}</Panel.Title>
               </Panel.Heading>
               <Panel.Body>{this.props.capitalPool}</Panel.Body>
             </Panel>

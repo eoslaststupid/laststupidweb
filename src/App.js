@@ -3,8 +3,16 @@ import './App.css';
 import Header from './Header'
 import Top3banner from './Top3banner'
 import Countdown from './Countdown'
-import { Grid,Row,Col,Panel,Button,Table,FormGroup,InputGroup,FormControl } from 'react-bootstrap';
+import { Grid,Row,Col,Button,Table,FormGroup,InputGroup,FormControl } from 'react-bootstrap';
 import Eos from 'eosjs'
+import intl from 'react-intl-universal'
+import cookie from 'cookie'
+
+
+const locales = {
+  "en-US": require('./locales/en-US.js'),
+  "zh-CN": require('./locales/zh-CN.js'),
+};
 
 class App extends Component {
   constructor(props) {
@@ -23,6 +31,7 @@ class App extends Component {
       capitalPool: '0 EOS',
       prevDisabled: true,
       nextDisabled: true,
+      initDone: false,
     }
 
     this.perPage = 10 //history每页显示条数
@@ -60,7 +69,7 @@ class App extends Component {
           id: item.id + 1,
         }))
         .sort((history1, history2) => history2.id - history1.id)
-      if(this.state.history.toString() != history.toString()){
+      if(this.state.history.toString() !== history.toString()){
         this.setState({history})
         this.whichPartShow()
       }
@@ -101,7 +110,7 @@ class App extends Component {
         // console.log(stupids[0].amount.replace(/ EOS/,''))
         // console.log(minimumBet,'---',remaningTime)
 
-        if (stupids.toString() != this.state.betRecord.toString()) {
+        if (stupids.toString() !== this.state.betRecord.toString()) {
           this.setState({betRecord: stupids, currentStupidOrder, currentStupid: stupids[0].account, minimumBet, maxBet, remaningTime})
         }
 
@@ -181,7 +190,30 @@ class App extends Component {
   }
 
   componentDidMount(){
+    this.loadLocales()
+  }
 
+  loadLocales() {
+
+
+    intl.init({
+      currentLocale: cookie.parse(document.cookie).lang ? cookie.parse(document.cookie).lang : 'zh-CN',
+      locales,
+    })
+      .then(() => {
+
+        this.setState({initDone: true});
+      });
+
+
+    console.log('intl1111：',intl.options)
+    // console.log('kaishi:', intl.determineLocale())
+    // console.log('document.cookie:', document.cookie)
+    // document.cookie = cookie.serialize("lang", "zh-CN");
+    // console.log('document.cookie:', document.cookie)
+    // console.log('jiesu:', intl.determineLocale())
+    // console.log(cookie.parse(document.cookie))
+    console.log('intl2222：',intl.options)
   }
 
   async scatterPost(){
@@ -219,7 +251,7 @@ class App extends Component {
                 this.getCapitalPool()
                 this.getHistoryStupids()
                 console.log('resl:', resl)
-                alert('不知当不当恭喜，接盘成功！')
+                alert(intl.get('PAYMENT_SUCCESS'))
               },error => {
                 this.scatter.forgetIdentity().then(() => {})
                 let errorMessage = ``
@@ -235,7 +267,7 @@ class App extends Component {
                       : innerError.what
                 }
                 if (errorMessage.trim() === `unknown key:`) errorMessage = `No such account`
-                alert('接盘失败！')
+                alert(intl.get('PAYMENT_FAILED'))
                 throw errorMessage
 
             })
@@ -249,7 +281,7 @@ class App extends Component {
       )
       return account
     },err=>{
-      alert('接盘失败')
+      alert(intl.get('PAYMENT_FAILED'))
     })
 
   }
@@ -258,7 +290,7 @@ class App extends Component {
   jiepan = ()=>{
 
     if(this.state.betprice < this.state.minimumBet || this.state.betprice > this.state.maxBet) {
-      alert('本轮接盘价需在 '+ this.state.minimumBet + ' 至 ' + this.state.maxBet + ' EOS之间')
+      alert(intl.get('PAYMENT_SECTION', {'minimumBet': this.state.minimumBet, 'maxBet': this.state.maxBet}))
       return false
     }
 
@@ -289,7 +321,7 @@ class App extends Component {
 
     this.setState({whichPartShow: tem.slice(begin, end)})
 
-    if(this.currentPage == 1){
+    if(this.currentPage === 1){
       this.setState({prevDisabled: true})
     }else{
       this.setState({prevDisabled: false})
@@ -309,7 +341,6 @@ class App extends Component {
     e.target.value = e.target.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
     e.target.value = e.target.value.replace(/^(\-)*(\d+)\.(\d\d\d\d).*$/,'$1$2.$3');
     //todo: 判断值是否是1.1倍到3倍
-    const baseBet = this.state.minimumBet * 10000 / 1.1
     this.setState({betprice: e.target.value})
 
 
@@ -353,18 +384,19 @@ class App extends Component {
 
   render() {
     return (
+      this.state.initDone &&
       <div className="App">
 
-        <Header/>
+        <Header intl = {intl}/>
 
-        <Top3banner  currentStupid = {this.state.currentStupid} currentStupidOrder = {this.state.currentStupidOrder}  minimumBet = {this.state.minimumBet}  capitalPool = {this.state.capitalPool} />
+        <Top3banner intl = {intl} currentStupid = {this.state.currentStupid} currentStupidOrder = {this.state.currentStupidOrder}  minimumBet = {this.state.minimumBet}  capitalPool = {this.state.capitalPool} />
 
         <Countdown seconds={this.state.remaningTime} />
 
         <Grid>
           <Row  className="per-title order-list">
             <Col xs={12} md={3}>
-            <span>接盘记录</span>
+            <span>{intl.get('OFFER_RECORDS')}</span>
             </Col>
 
             <Col  xs={12} md={9}>
@@ -375,7 +407,7 @@ class App extends Component {
 
                 <FormGroup>
                   <InputGroup className="inputGroup">
-                    <FormControl type="text" name="betprice" id="betValue" onKeyUp= {this.formatInput} placeholder={'最低接盘价 ' + this.state.minimumBet + ' EOS'}/>
+                    <FormControl type="text" name="betprice" id="betValue" onKeyUp= {this.formatInput} placeholder={intl.get('OFFER_MINIMAL') + ' ' + this.state.minimumBet + ' EOS'}/>
                     <InputGroup.Button>
                       <Button bsStyle="danger" onClick = {this.jiepan} >我来接盘</Button>
                     </InputGroup.Button>
@@ -389,27 +421,27 @@ class App extends Component {
           {this.renderBetRecords()}
 
           <Row style={{margin:"0"}}>
-            <div className="per-title" id="game-rule">游戏规则</div>
+            <div className="per-title" id="game-rule">{intl.get('GMAE_RULE')}</div>
               <ul className="list-group rule-ul">
-                <li className="list-group-item">1、第一个成为stupid的人需要支付1个EOS，随后每一个接盘侠最少需要支付前一个人接盘金额的1.1倍，也可以选择支付更多但上限为3倍；</li>
-                <li className="list-group-item">2、接盘的资金将进入上一个玩家的钱包，所以一旦有其他玩家来接盘，你将至少获得10%的利润，除去手续费；</li>
-                <li className="list-group-item">3、用户可以根据当前形势决定自己要支付的金额，支付的越多风险越高，但是收益也越高；</li>
-                <li className="list-group-item">4、如果某玩家接盘后超过12小时没有人再来接盘，那么此玩家将成为Last Stupid，本轮游戏结束，进入下一轮；</li>
-                <li className="list-group-item">5、游戏过程中将收取5%的总费用，其中2%作为DAPP运营费用，3%作为资金池；</li>
-                <li className="list-group-item">6、每轮游戏的Last Stupid可以在后续游戏积累的资金池中享受永久分红，分红比例按照所有Last Stupid的个数平均分配；</li>
-                <li className="list-group-item">7、分红总量为资金池总额的70%，剩余资金将积累到下一轮；</li>
+                <li className="list-group-item">{intl.get('RULE_1')}</li>
+                <li className="list-group-item">{intl.get('RULE_2')}</li>
+                <li className="list-group-item">{intl.get('RULE_3')}</li>
+                <li className="list-group-item">{intl.get('RULE_4')}</li>
+                <li className="list-group-item">{intl.get('RULE_5')}</li>
+                <li className="list-group-item">{intl.get('RULE_6')}</li>
+                <li className="list-group-item">{intl.get('RULE_7')}</li>
               </ul>
           </Row>
 
           <Row style={{margin:"0"}}>
-            <div className="per-title" id="history-records">历史记录</div>
+            <div className="per-title" id="history-records">{intl.get('HISTORY')}</div>
             <Table className="history-ul" responsive>
               <thead>
                 <tr>
-                  <th>轮次</th>
-                  <th>玩家</th>
-                  <th>投入</th>
-                  <th>分红收益</th>
+                  <th>{intl.get('ROUND')}</th>
+                  <th>{intl.get('PLAYER')}</th>
+                  <th>{intl.get('PUT_INTO')}</th>
+                  <th>{intl.get('DIVIDEND_INCOM')}</th>
                 </tr>
               </thead>
 

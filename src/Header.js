@@ -1,9 +1,33 @@
 import React from 'react';
-import { Image,Navbar,Nav,NavItem,NavDropdown,MenuItem } from 'react-bootstrap';
+import { Image,Navbar,Nav,NavItem } from 'react-bootstrap';
+import cookie from 'cookie'
 
 export default class Header extends React.PureComponent {
   constructor(props) {
     super(props)
+    this.state = {
+      showWord : 'English',
+    }
+  }
+
+
+  componentDidMount(){
+    const currCookie = cookie.parse(document.cookie).lang ? cookie.parse(document.cookie).lang : 'zh-CN'
+    if(currCookie === 'zh-CN'){
+      this.setState({showWord: 'English'})
+    }else{
+      this.setState({showWord: '中文简体'})
+    }
+  }
+
+  changeLanguage = () => {
+    const currCookie = cookie.parse(document.cookie).lang ? cookie.parse(document.cookie).lang : 'zh-CN'
+    if(currCookie === 'en-US'){
+      document.cookie = cookie.serialize("lang", "zh-CN");
+    }else{
+      document.cookie = cookie.serialize("lang", "en-US");
+    }
+    window.location.reload()
   }
 
   render() {
@@ -19,13 +43,13 @@ export default class Header extends React.PureComponent {
 
           <Nav pullRight>
             <NavItem eventKey={1} className="li-a" href="#game-rule">
-              游戏规则
+              {this.props.intl.get('GMAE_RULE')}
             </NavItem>
             <NavItem eventKey={2} className="li-a" href="#history-records">
-              历史记录
+              {this.props.intl.get('HISTORY')}
             </NavItem>
-            <NavItem eventKey={2} className="li-a change-lan" href="#">
-              English
+            <NavItem eventKey={2} className="li-a change-lan" onClick = {this.changeLanguage} href="#">
+              {this.state.showWord}
             </NavItem>
 
           </Nav>

@@ -171,3 +171,8 @@ input[name="betprice"]{
 .inputGroup{animation: scaleout 1.3s linear infinite;
   animation-direction: alternate;}
 .inputGroup button{border-radius: 0}
+  @media (min-width: 768px) {
+    .navbar-nav > li {
+      width: 9rem;
+    }
+  }

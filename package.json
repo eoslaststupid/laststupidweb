@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "cookie": "^0.3.1",
     "eosjs": "16.0.2",
     "react": "^16.4.2",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.4.2",
+    "react-intl-universal": "^1.12.1",
     "react-scripts": "1.1.4"
   },
   "scripts": {
