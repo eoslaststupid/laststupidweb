@@ -17,6 +17,6 @@ module.exports = ({
   "RULE_6":"6、每轮游戏的Last Stupid可以在后续游戏积累的资金池中享受永久分红，分红比例按照所有Last Stupid的个数平均分配；",
   "RULE_7":"7、分红总量为资金池总额的70%，剩余资金将积累到下一轮；",
   "PAYMENT_FAILED" : "接盘失败",
-  "PAYMENT_SUCCESS": "不知当不当恭喜，接盘成功！",
-  "PAYMENT_SECTION":"本轮接盘价需在 {minimumBet}  至  {maxBet}  EOS之间",
+  "PAYMENT_SUCCESS": "恭喜，接盘成功！",
+  "PAYMENT_SECTION":"本轮接盘价需在 {minimumBet} 至 {maxBet} EOS之间",
 });
