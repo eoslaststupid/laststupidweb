@@ -19,4 +19,5 @@ module.exports = ({
   "PAYMENT_FAILED" : "接盘失败",
   "PAYMENT_SUCCESS": "恭喜，接盘成功！",
   "PAYMENT_SECTION":"本轮接盘价需在 {minimumBet} 至 {maxBet} EOS之间",
+  "QUOTATION": "我来接盘",
 });

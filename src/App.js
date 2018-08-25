@@ -410,7 +410,7 @@ class App extends Component {
                   <InputGroup className="inputGroup">
                     <FormControl type="text" name="betprice" id="betValue" onKeyUp= {this.formatInput} placeholder={intl.get('OFFER_MINIMAL') + ' ' + this.state.minimumBet + ' EOS'}/>
                     <InputGroup.Button>
-                      <Button bsStyle="danger" onClick = {this.jiepan} >我来接盘</Button>
+                      <Button bsStyle="danger" onClick = {this.jiepan} >{intl.get('QUOTATION')}</Button>
                     </InputGroup.Button>
                   </InputGroup>
                 </FormGroup>
