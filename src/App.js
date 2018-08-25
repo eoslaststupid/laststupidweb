@@ -251,6 +251,7 @@ class App extends Component {
                 this.getCapitalPool()
                 this.getHistoryStupids()
                 console.log('resl:', resl)
+                document.getElementById('betValue').value = ''
                 alert(intl.get('PAYMENT_SUCCESS'))
               },error => {
                 this.scatter.forgetIdentity().then(() => {})
@@ -340,7 +341,7 @@ class App extends Component {
     e.target.value = e.target.value.replace(/\.{2,}/g,".");
     e.target.value = e.target.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
     e.target.value = e.target.value.replace(/^(\-)*(\d+)\.(\d\d\d\d).*$/,'$1$2.$3');
-    //todo: 判断值是否是1.1倍到3倍
+
     this.setState({betprice: e.target.value})
 
 
