@@ -19,4 +19,5 @@ module.exports = ({
   "PAYMENT_FAILED" : "Quotation failed",
   "PAYMENT_SUCCESS": "Congratulations! You are Stupid!!!",
   "PAYMENT_SECTION":"The quotation must between {minimumBet} and {maxBet} EOS",
+  "QUOTATION" : "Quotation",
 });
