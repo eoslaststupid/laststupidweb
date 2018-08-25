@@ -110,9 +110,9 @@ class App extends Component {
         // console.log(stupids[0].amount.replace(/ EOS/,''))
         // console.log(minimumBet,'---',remaningTime)
 
-        if (stupids.toString() !== this.state.betRecord.toString()) {
+        // if (stupids.toString() !== this.state.betRecord.toString()) {
           this.setState({betRecord: stupids, currentStupidOrder, currentStupid: stupids[0].account, minimumBet, maxBet, remaningTime})
-        }
+        // }
 
       },err=>
         console.log('err:',err)
@@ -163,7 +163,7 @@ class App extends Component {
       this.getCapitalPool()
       this.getCurrentRecords()
       this.getHistoryStupids()
-    }, 60000)
+    }, 10000)
 
 
     document.addEventListener('scatterLoaded',async scatterExtension => {
