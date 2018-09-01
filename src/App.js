@@ -36,7 +36,7 @@ class App extends Component {
 
     this.perPage = 10 //history每页显示条数
     this.currentPage = 1 //当前页
-    this.selfAccount = 'eosiostupid4'
+    this.selfAccount = 'laststupidio'
     this.scatter = undefined
     this.eos     = undefined
     this.Eos     = undefined
@@ -44,9 +44,9 @@ class App extends Component {
     this.network = {
       protocol:'https',
       blockchain:'eos',
-      host:'api-kylin.eosasia.one',
+      host:'node.eosflare.io',
       port:443,
-      chainId:'5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191',
+      chainId:'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
       verbose:true
     }
   }
