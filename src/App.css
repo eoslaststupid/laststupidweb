@@ -175,3 +175,12 @@ input[name="betprice"]{
       width: 9rem;
     }
   }
+.hide,.show{
+  margin: 2rem 0 1rem 0 !important;
+}
+.hide{
+  display:none;
+}
+.show{
+  display:block;
+}

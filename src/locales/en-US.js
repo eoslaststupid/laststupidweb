@@ -20,4 +20,6 @@ module.exports = ({
   "PAYMENT_SUCCESS": "Congratulations! You are Stupid!!!",
   "PAYMENT_SECTION":"The quotation must between {minimumBet} and {maxBet} EOS",
   "QUOTATION" : "Quotation",
+  "PLEASE_FIRST_INSTALL" : "Please install",
+  "PLEASE_USE_CHROME" : "Please use Chrome",
 });

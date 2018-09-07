@@ -3,7 +3,7 @@ import './App.css';
 import Header from './Header'
 import Top3banner from './Top3banner'
 import Countdown from './Countdown'
-import { Grid,Row,Col,Button,Table,FormGroup,InputGroup,FormControl } from 'react-bootstrap';
+import { Grid,Row,Col,Button,Table,FormGroup,InputGroup,FormControl,Alert } from 'react-bootstrap';
 import Eos from 'eosjs'
 import intl from 'react-intl-universal'
 import cookie from 'cookie'
@@ -32,6 +32,8 @@ class App extends Component {
       prevDisabled: true,
       nextDisabled: true,
       initDone: false,
+      triggerClass: 'hide',
+      browserTriggerClass : 'show',
     }
 
     this.perPage = 10 //history每页显示条数
@@ -52,6 +54,13 @@ class App extends Component {
   }
 
 
+  handleDismiss= () => {
+    this.setState({ triggerClass: "hide" });
+  }
+
+  browserhandleDismiss = () => {
+    this.setState({ browserTriggerClass: "hide" });
+  }
 
   stupidIndexSplit = originIndex => ({
     stupidOrder: originIndex & 0xff,//排序
@@ -187,6 +196,13 @@ class App extends Component {
 
     })
 
+    const isChrome = window.navigator.userAgent.indexOf("Chrome") !== -1;
+    if(isChrome){
+      this.setState({browserTriggerClass: 'hide'})
+    }else{
+      this.setState({browserTriggerClass: 'show'})
+    }
+
   }
 
   componentDidMount(){
@@ -289,6 +305,10 @@ class App extends Component {
 
 
   jiepan = ()=>{
+    if(this.eos === undefined){
+      this.setState({triggerClass:'show'})
+      return false;
+    }
 
     if(this.state.betprice < this.state.minimumBet || this.state.betprice > this.state.maxBet) {
       alert(intl.get('PAYMENT_SECTION', {'minimumBet': this.state.minimumBet, 'maxBet': this.state.maxBet}))
@@ -390,6 +410,14 @@ class App extends Component {
 
         <Header intl = {intl}/>
 
+        <Grid>
+          <Row>
+            <Col className={this.state.browserTriggerClass}>
+              <Alert bsStyle="danger" onDismiss={this.browserhandleDismiss}>{intl.get('PLEASE_USE_CHROME')} </Alert>
+            </Col>
+          </Row>
+        </Grid>
+
         <Top3banner intl = {intl} currentStupid = {this.state.currentStupid} currentStupidOrder = {this.state.currentStupidOrder}  minimumBet = {this.state.minimumBet}  capitalPool = {this.state.capitalPool} />
 
         <Countdown seconds={this.state.remaningTime} />
@@ -414,8 +442,18 @@ class App extends Component {
                     </InputGroup.Button>
                   </InputGroup>
                 </FormGroup>
+
+
+
               </Col>
 
+            </Col>
+
+          </Row>
+
+          <Row className={this.state.triggerClass}>
+            <Col>
+              <Alert bsStyle="danger" onDismiss={this.handleDismiss}>{intl.get('PLEASE_FIRST_INSTALL')} <a href ='https://github.com/GetScatter/ScatterWebExtension' target="_blank">Scatter</a></Alert>
             </Col>
           </Row>
 

@@ -20,4 +20,6 @@ module.exports = ({
   "PAYMENT_SUCCESS": "恭喜，接盘成功！",
   "PAYMENT_SECTION":"本轮接盘价需在 {minimumBet} 至 {maxBet} EOS之间",
   "QUOTATION": "我来接盘",
+  "PLEASE_FIRST_INSTALL": "请先点此安装",
+  "PLEASE_USE_CHROME" : "请使用Chrome浏览器"
 });
