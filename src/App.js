@@ -113,7 +113,10 @@ class App extends Component {
         let minimumBet =  Math.ceil(stupids[0].amount.replace(/ EOS/,'') * 1.1 * 10000) / 10000
         let maxBet = Math.floor(stupids[0].amount.replace(/ EOS/,'') * 3 * 10000) / 10000
 
-        let rt = 12 * 60 * 60 - Math.round((Date.parse(new Date()) - Date.parse(new Date(stupids[0].bettime))) / 1000)
+        const backTime = this.formatForSafariDate(stupids[0].bettime)
+
+        let rt = 12 * 60 * 60 - Math.round(((Date.parse(new Date()) - Date.parse(new Date(backTime))) / 1000))
+
         let remaningTime = rt > 0 ? rt : 0
 
         // console.log(stupids[0].amount.replace(/ EOS/,''))
@@ -126,6 +129,10 @@ class App extends Component {
       },err=>
         console.log('err:',err)
     )
+  }
+
+  formatForSafariDate = (dateString) => {
+    return dateString.replace(/\-/g, "/")
   }
 
 
@@ -196,8 +203,16 @@ class App extends Component {
 
     })
 
+    let isPc
+
+    if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+      isPc = false
+    } else {
+      isPc = true
+    }
+
     const isChrome = window.navigator.userAgent.indexOf("Chrome") !== -1;
-    if(isChrome){
+    if(isPc && isChrome){
       this.setState({browserTriggerClass: 'hide'})
     }else{
       this.setState({browserTriggerClass: 'show'})

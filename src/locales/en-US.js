@@ -21,5 +21,5 @@ module.exports = ({
   "PAYMENT_SECTION":"The quotation must between {minimumBet} and {maxBet} EOS",
   "QUOTATION" : "Quotation",
   "PLEASE_FIRST_INSTALL" : "Please install",
-  "PLEASE_USE_CHROME" : "Please use Chrome",
+  "PLEASE_USE_CHROME" : "Please use PC Chrome and install Scatter",
 });
